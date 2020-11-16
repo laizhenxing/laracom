@@ -27,6 +27,9 @@ func main() {
 	}
 	defer dbConn.Close()
 
+	// 数据库迁移
+	dbConn.AutoMigrate(&pb.User{})
+
 	// 初始化 Repo
 	rep := &repo.UserRepository{dbConn}
 

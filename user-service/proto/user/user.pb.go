@@ -9,6 +9,12 @@ import (
 	math "math"
 )
 
+import (
+	client "github.com/micro/go-micro/v2/client"
+	server "github.com/micro/go-micro/v2/server"
+	context "golang.org/x/net/context"
+)
+
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
@@ -327,4 +333,93 @@ var fileDescriptor_9b283a848145d6b7 = []byte{
 	0xae, 0x72, 0x9c, 0xd6, 0x0e, 0xa6, 0x37, 0xe4, 0xff, 0x3b, 0xcd, 0x3b, 0xc8, 0x6e, 0xc8, 0x6f,
 	0x9b, 0x06, 0x1f, 0x9e, 0x52, 0xcb, 0xca, 0xfe, 0x25, 0xe1, 0x21, 0x93, 0x6f, 0xf0, 0xfa, 0x57,
 	0x00, 0x00, 0x00, 0xff, 0xff, 0x09, 0xdc, 0x24, 0x0e, 0x9c, 0x03, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ client.Option
+var _ server.Option
+
+// Client API for UserService service
+
+type UserServiceClient interface {
+	Create(ctx context.Context, in *User, opts ...client.CallOption) (*UserResponse, error)
+	Get(ctx context.Context, in *User, opts ...client.CallOption) (*UserResponse, error)
+	GetAll(ctx context.Context, in *UserRequest, opts ...client.CallOption) (*UserResponse, error)
+}
+
+type userServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewUserServiceClient(serviceName string, c client.Client) UserServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "laracom.user.service"
+	}
+	return &userServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *userServiceClient) Create(ctx context.Context, in *User, opts ...client.CallOption) (*UserResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.Create", in)
+	out := new(UserResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) Get(ctx context.Context, in *User, opts ...client.CallOption) (*UserResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.Get", in)
+	out := new(UserResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetAll(ctx context.Context, in *UserRequest, opts ...client.CallOption) (*UserResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.GetAll", in)
+	out := new(UserResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for UserService service
+
+type UserServiceHandler interface {
+	Create(context.Context, *User, *UserResponse) error
+	Get(context.Context, *User, *UserResponse) error
+	GetAll(context.Context, *UserRequest, *UserResponse) error
+}
+
+func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&UserService{hdlr}, opts...))
+}
+
+type UserService struct {
+	UserServiceHandler
+}
+
+func (h *UserService) Create(ctx context.Context, in *User, out *UserResponse) error {
+	return h.UserServiceHandler.Create(ctx, in, out)
+}
+
+func (h *UserService) Get(ctx context.Context, in *User, out *UserResponse) error {
+	return h.UserServiceHandler.Get(ctx, in, out)
+}
+
+func (h *UserService) GetAll(ctx context.Context, in *UserRequest, out *UserResponse) error {
+	return h.UserServiceHandler.GetAll(ctx, in, out)
 }
