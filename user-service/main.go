@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/laizhenxing/laracom/user-service/service"
 	"log"
 	"os"
 
@@ -32,6 +33,8 @@ func main() {
 
 	// 初始化 Repo
 	rep := &repo.UserRepository{dbConn}
+	// 初始化token service
+	tokenService := &service.TokenService{rep}
 
 	// 创建用户服务
 	srv := micro.NewService(
@@ -41,7 +44,7 @@ func main() {
 	// 解析命令行参数
 	srv.Init()
 	// 注册服务处理器
-	pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{rep})
+	pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{Repo: rep, Token: tokenService})
 	// 运行服务
 	if err := srv.Run(); err != nil {
 		fmt.Println(err)
