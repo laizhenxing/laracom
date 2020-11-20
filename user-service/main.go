@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/laizhenxing/laracom/user-service/service"
 	"log"
 	"os"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/laizhenxing/laracom/user-service/handler"
 	pb "github.com/laizhenxing/laracom/user-service/proto/user"
 	"github.com/laizhenxing/laracom/user-service/repo"
+	"github.com/laizhenxing/laracom/user-service/service"
 )
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 
 	// 创建用户服务
 	srv := micro.NewService(
-		micro.Name("laracom.user.service"),
+		micro.Name("laracom.service.user"),
 		micro.Version("latest"), // 新增加接口版本参数
 	)
 	// 解析命令行参数

@@ -3,14 +3,15 @@ package handler
 import (
 	"context"
 	"errors"
-	"github.com/laizhenxing/laracom/user-service/util/e"
 	"log"
 
+	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 
 	pb "github.com/laizhenxing/laracom/user-service/proto/user"
 	"github.com/laizhenxing/laracom/user-service/repo"
 	"github.com/laizhenxing/laracom/user-service/service"
+	"github.com/laizhenxing/laracom/user-service/util/e"
 )
 
 type UserService struct {
@@ -18,13 +19,24 @@ type UserService struct {
 	Token service.Authable
 }
 
-func (u *UserService) Auth(ctx context.Context, req *pb.User, res *pb.Token) error {
-	log.Println("Logging in withL: ", req.Email, req.Password)
-	// 获取用户信息
+func (u *UserService) GetByEmail(c context.Context, req *pb.User, res *pb.UserResponse) error {
 	user, err := u.Repo.GetByEmail(req.Email)
 	if err != nil {
 		return err
 	}
+	res.User = user
+	return nil
+}
+
+func (u *UserService) Auth(ctx context.Context, req *pb.User, res *pb.Token) error {
+	log.Println("Logging in with: ", req.Email, req.Password)
+	// 获取用户信息
+	user, err := u.Repo.GetByEmail(req.Email)
+	if err != nil {
+		log.Println("通过email获取用户失败: ", err)
+		return err
+	}
+	log.Println(user, "Get the user")
 	// 校验用户输入的密码是否与数据库密码匹配
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 		return err
@@ -69,8 +81,16 @@ func (u *UserService) Create(ctx context.Context, req *pb.User, res *pb.UserResp
 }
 
 func (u *UserService) Get(ctx context.Context, req *pb.User, res *pb.UserResponse) error {
-	user, err := u.Repo.Get(req.Id)
-	if err != nil {
+	var (
+		user *pb.User
+		err  error
+	)
+	if req.Id != "" {
+		user, err = u.Repo.Get(req.Id)
+	} else if req.Email != "" {
+		user, err = u.Repo.GetByEmail(req.Email)
+	}
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return err
 	}
 	res.User = user

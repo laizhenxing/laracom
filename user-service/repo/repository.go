@@ -22,18 +22,17 @@ func (u *UserRepository) Create(user *pb.User) error {
 }
 
 func (u *UserRepository) Get(id string) (*pb.User, error) {
-	var user *pb.User
+	user := &pb.User{}
 	user.Id = id
-	if err := u.DB.First(&user).Error; err != nil {
+	if err := u.DB.Unscoped().First(&user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
 func (u *UserRepository) GetByEmail(email string) (*pb.User, error) {
-	var user *pb.User
-	user.Email = email
-	if err := u.DB.First(&user).Error; err != nil {
+	user := &pb.User{}
+	if err := u.DB.Debug().Unscoped().Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -42,7 +41,7 @@ func (u *UserRepository) GetByEmail(email string) (*pb.User, error) {
 
 func (u *UserRepository) GetAll() ([]*pb.User, error) {
 	var users []*pb.User
-	if err := u.DB.Find(&users).Error; err != nil {
+	if err := u.DB.Debug().Unscoped().Find(&users).Error; err != nil {
 		return nil, err
 	}
 

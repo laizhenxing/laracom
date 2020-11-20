@@ -51,7 +51,7 @@ func callUserService() {
 
 			// 调用用户认证服务
 			var token *pb.Token
-			token, err = client.Auth(contenxt.TODO(), &pb.User{
+			token, err = client.Auth(context.TODO(), &pb.User{
 				Email: email,
 				Password: password,
 			})
@@ -59,20 +59,21 @@ func callUserService() {
 				log.Fatalf("用户登录失败:%v\n", err)
 				return err
 			}
-			log.Println("用户登录成功: %s", token.Token)
+			log.Printf("用户登录成功: %s\n", token.Token)
 
 			// 调用用户验证服务
-			token, err = client.ValidateToken(contenxt.TODO(), token)
+			token, err = client.ValidateToken(context.TODO(), token)
 			if err != nil {
 				log.Println("用户认证失败:", err)
 				return err
 			}
-			log.Printf("用户认证成功：%s", token.Valid)
-			
+			log.Printf("用户认证成功：%t\n", token.Valid)
+
 			// 调用获取所有用户的服务
 			users, err := client.GetAll(context.Background(), &pb.UserRequest{})
 			if err != nil {
 				log.Printf("获取所有用户失败: %v\n", err)
+				return err
 			}
 			for _, user := range users.Users {
 				log.Println(user)

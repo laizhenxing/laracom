@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package laracom.user.service;
+package laracom.service.user;
 
 message User {
   string id = 1;
@@ -36,6 +36,7 @@ service UserService {
   rpc Create(User) returns (UserResponse);
   rpc Get(User) returns (UserResponse);
   rpc GetAll(UserRequest) returns (UserResponse);
+  rpc GetByEmail(User) returns (UserResponse);
   rpc Auth(User) returns (Token);
   rpc ValidateToken(Token) returns (Token);
 }
