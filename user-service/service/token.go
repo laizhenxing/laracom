@@ -49,6 +49,9 @@ func (t *TokenService) Decode(tokenStr string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	// 验证 token
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return claims, nil
